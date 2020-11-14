@@ -1,25 +1,2 @@
-# 视频自动标注软件
-
-## 使用说明
-
-打开视频：自动切帧
-
-打开图片：打开切帧后的图片文件夹
-
-打开标签：打开标注文件保存文件夹
-
-
-
-添加目标：左侧输入类别名称，鼠标画框
-
-标注：确认添加标记框
-
-KCF/Siam：选择跟踪使用的算法
-
-开始：开始自动标注
-
-暂停：结束标注
-
-滑条：拖动回看标注结果，并可以从任意位置重新标记后重新标注
-
-![image-20201114153410378](/home/jonthan/桌面/image-20201114153410378.png)
+# Auto_Video_Label_tool
+Using tracking algorithm to realize automatic marking of targets in video
