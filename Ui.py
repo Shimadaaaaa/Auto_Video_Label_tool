@@ -2,7 +2,11 @@
 # @Author: hzb
 # @Date:   2020-11-10 19:53:44
 # @Last Modified by:   hzb
+<<<<<<< HEAD
+# @Last Modified time: 2020-11-25 16:36:26
+=======
 # @Last Modified time: 2020-11-13 11:00:57
+>>>>>>> afd46ce0465a3c9d461edba386b0a21898ea89e8
 
 
 # Form implementation generated from reading ui file '/media/jonthan/DATA/project/My_Classification/project.ui'
@@ -14,7 +18,11 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QWidget, QApplication, QLabel
 from PyQt5.QtCore import QRect, Qt
+<<<<<<< HEAD
+from PyQt5.QtGui import QImage, QPixmap, QPainter, QPen, QGuiApplication, QPalette
+=======
 from PyQt5.QtGui import QImage, QPixmap, QPainter, QPen, QGuiApplication
+>>>>>>> afd46ce0465a3c9d461edba386b0a21898ea89e8
 import cv2
 import sys
    
@@ -46,7 +54,11 @@ class MyLabel(QLabel):
     #绘制事件
     def paintEvent(self, event):
         super().paintEvent(event)
+<<<<<<< HEAD
+        self.rect = QRect(self.x0, self.y0, abs(self.x1-self.x0), abs(self.y1-self.y0))
+=======
         self.rect =QRect(self.x0, self.y0, abs(self.x1-self.x0), abs(self.y1-self.y0))
+>>>>>>> afd46ce0465a3c9d461edba386b0a21898ea89e8
         painter = QPainter(self)
         painter.setPen(QPen(Qt.red,2,Qt.SolidLine))
         if self.draw_cur:
@@ -67,6 +79,44 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1280, 960)
+<<<<<<< HEAD
+        # self.setWindowOpacity(0.9) 
+        self.centralwidget = QtWidgets.QWidget(MainWindow)
+        self.centralwidget.setObjectName("centralwidget")
+        self.pushButton_clear = QtWidgets.QPushButton(self.centralwidget)
+        self.pushButton_clear.setGeometry(QtCore.QRect(720, 870, 120, 40))
+        self.pushButton_clear.setFlat(False)
+        self.pushButton_clear.setObjectName("pushButton_clear")
+        self.lineEdit = QtWidgets.QLineEdit(self.centralwidget)
+        self.lineEdit.setGeometry(QtCore.QRect(150, 870, 120, 40))
+        self.lineEdit.setObjectName("lineEdit")
+        self.lineEdit.setStyleSheet(
+        '''QLineEdit{
+                border:1px solid gray;
+                width:300px;
+                border-radius:10px;
+                padding:2px 4px;
+        }''')
+        self.pushButton_add = QtWidgets.QPushButton(self.centralwidget)
+        self.pushButton_add.setGeometry(QtCore.QRect(10, 870, 120, 40))
+        self.pushButton_add.setObjectName("pushButton_add")
+        self.pushButton_mark = QtWidgets.QPushButton(self.centralwidget)
+        self.pushButton_mark.setGeometry(QtCore.QRect(290, 870, 120, 40))
+        self.pushButton_mark.setObjectName("pushButton_mark")
+        self.pushButton_start = QtWidgets.QPushButton(self.centralwidget)
+        self.pushButton_start.setGeometry(QtCore.QRect(580, 870, 120, 40))
+        self.pushButton_start.setObjectName("pushButton_start")
+        self.horizontalScrollBar = QtWidgets.QScrollBar(self.centralwidget)
+        self.horizontalScrollBar.setGeometry(QtCore.QRect(10, 840, 1171, 20))
+        self.horizontalScrollBar.setOrientation(QtCore.Qt.Horizontal)
+        self.horizontalScrollBar.setObjectName("horizontalScrollBar")
+        self.label = QtWidgets.QLabel(self.centralwidget)
+        self.label.setGeometry(QtCore.QRect(1190, 840, 100, 17))
+        self.label.setObjectName("label")
+        self.label_video = QtWidgets.QLabel(self.centralwidget)
+        self.label_video.setGeometry(QtCore.QRect(1190, 15, 100, 20))
+        self.label_video.setObjectName("label")
+=======
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.pushButton_stop = QtWidgets.QPushButton(self.centralwidget)
@@ -92,6 +142,7 @@ class Ui_MainWindow(object):
         self.label.setGeometry(QtCore.QRect(1210, 840, 67, 17))
         self.label.setObjectName("label")
         
+>>>>>>> afd46ce0465a3c9d461edba386b0a21898ea89e8
         self.lb = MyLabel(self) #重定义的label
         self.lb.setGeometry(QRect(40, 50, 1200, 800))
         self.lb.setObjectName("MyLabel")
@@ -99,18 +150,47 @@ class Ui_MainWindow(object):
         self.label2 = QtWidgets.QLabel(self.centralwidget)
         self.label2.setGeometry(QtCore.QRect(40, 20, 1200, 800))
         self.label2.setObjectName("label")
+<<<<<<< HEAD
+        self.label2.raise_()
+        pe = QPalette()
+        # pe.setColor(QPalette.WindowText,Qt.red)#设置字体颜色
+        self.label2.setAutoFillBackground(True)#设置背景充满，为设置背景颜色的必要条件
+        pe.setColor(QPalette.Window,Qt.white)#设置背景颜色
+        self.label2.setPalette(pe)
+
+        self.checkBox = QtWidgets.QCheckBox(self.centralwidget)
+        self.checkBox.setEnabled(True)
+        self.checkBox.setGeometry(QtCore.QRect(440, 870, 120, 40))
+=======
 
         self.checkBox = QtWidgets.QCheckBox(self.centralwidget)
         self.checkBox.setEnabled(True)
         self.checkBox.setGeometry(QtCore.QRect(680, 870, 190, 40))
+>>>>>>> afd46ce0465a3c9d461edba386b0a21898ea89e8
         font = QtGui.QFont()
         font.setPointSize(15)
         self.checkBox.setFont(font)
         self.checkBox.setChecked(True)
         self.checkBox.setObjectName("checkBox")
+<<<<<<< HEAD
+        self.pushButton_det = QtWidgets.QPushButton(self.centralwidget)
+        self.pushButton_det.setGeometry(QtCore.QRect(1000, 870, 120, 40))
+        self.pushButton_det.setFlat(False)
+        self.pushButton_det.setObjectName("pushButton_det")
+        self.pushButton_train = QtWidgets.QPushButton(self.centralwidget)
+        self.pushButton_train.setGeometry(QtCore.QRect(1140, 870, 120, 40))
+        self.pushButton_train.setFlat(False)
+        self.pushButton_train.setObjectName("pushButton_train")
+        self.pushButton_change = QtWidgets.QPushButton(self.centralwidget)
+        self.pushButton_change.setGeometry(QtCore.QRect(860, 870, 120, 40))
+        self.pushButton_change.setFlat(False)
+        self.pushButton_change.setObjectName("pushButton_change")
+        MainWindow.setCentralWidget(self.centralwidget)
+=======
         MainWindow.setCentralWidget(self.centralwidget)
 
         
+>>>>>>> afd46ce0465a3c9d461edba386b0a21898ea89e8
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1280, 31))
         self.menubar.setObjectName("menubar")
@@ -143,12 +223,24 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "自动标注软件"))
+<<<<<<< HEAD
+        self.pushButton_clear.setText(_translate("MainWindow", "清除"))
+=======
         self.pushButton_stop.setText(_translate("MainWindow", "暂停"))
+>>>>>>> afd46ce0465a3c9d461edba386b0a21898ea89e8
         self.pushButton_add.setText(_translate("MainWindow", "添加目标"))
         self.pushButton_mark.setText(_translate("MainWindow", "标注"))
         self.pushButton_start.setText(_translate("MainWindow", "开始"))
         self.label.setText(_translate("MainWindow", "--/--"))
+<<<<<<< HEAD
+        # self.label_video.setText(_translate("MainWindow", "--/--"))
         self.checkBox.setText(_translate("MainWindow", "KCF / Siam"))
+        self.pushButton_det.setText(_translate("MainWindow", "检测"))
+        self.pushButton_train.setText(_translate("MainWindow", "训练"))
+        self.pushButton_change.setText(_translate("MainWindow", "修改"))
+=======
+        self.checkBox.setText(_translate("MainWindow", "KCF / Siam"))
+>>>>>>> afd46ce0465a3c9d461edba386b0a21898ea89e8
         self.file.setTitle(_translate("MainWindow", "文件"))
         self.about.setTitle(_translate("MainWindow", "关于"))
         self.open_video.setText(_translate("MainWindow", "打开视频"))

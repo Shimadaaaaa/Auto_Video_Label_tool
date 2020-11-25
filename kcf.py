@@ -2,7 +2,11 @@
 # @Author: hzb
 # @Date:   2020-11-12 16:58:13
 # @Last Modified by:   hzb
+<<<<<<< HEAD
+# @Last Modified time: 2020-11-24 20:44:15
+=======
 # @Last Modified time: 2020-11-13 20:39:56
+>>>>>>> afd46ce0465a3c9d461edba386b0a21898ea89e8
 #多目标视频追踪
 #框选感兴趣的矩形区域后，回车两下，进行下一目标的框选。若目标全部框选完毕，按回车后再按q退出，开始跟踪。
 import sys
@@ -10,6 +14,10 @@ import cv2
 from random import randint
 import time
 import os
+<<<<<<< HEAD
+# import av
+=======
+>>>>>>> afd46ce0465a3c9d461edba386b0a21898ea89e8
 import numpy as np
 
 def create_KCF(image,bboxes,txt_path):
@@ -62,6 +70,10 @@ def cut(video_in,img_out):
         else:break
     cap.release() 
 
+<<<<<<< HEAD
+
+=======
+>>>>>>> afd46ce0465a3c9d461edba386b0a21898ea89e8
 if __name__ == '__main__':
     # txt_path =  '/home/jonthan/下载/txt/'
     # img_path= '/home/jonthan/下载/img/'
@@ -76,6 +88,14 @@ if __name__ == '__main__':
     #     cv2.imshow('img',image)
     #     cv2.waitKey(1)
     #     time.sleep(1)
+<<<<<<< HEAD
+    t_s = time.time()
+    video_path = '/media/jonthan/Jonthan/video/20201002123733.MP4'
+    image_path = '/media/jonthan/Jonthan/video/20201002123733'
+    cut(video_path, image_path)
+    print(time.time() - t_s)
+=======
     video_path = '/home/jonthan/视频/fight.avi'
     image_path = '/home/jonthan/视频/fight'
     cut(video_path, image_path)
+>>>>>>> afd46ce0465a3c9d461edba386b0a21898ea89e8
