@@ -2,7 +2,7 @@
 # @Author: hzb
 # @Date:   2020-11-12 16:58:13
 # @Last Modified by:   hzb
-# @Last Modified time: 2020-11-24 20:44:15
+# @Last Modified time: 2020-12-24 21:57:18
 #多目标视频追踪
 #框选感兴趣的矩形区域后，回车两下，进行下一目标的框选。若目标全部框选完毕，按回车后再按q退出，开始跟踪。
 import sys
@@ -37,7 +37,7 @@ def video_track(image,img_name,txt_path,multiTracker,labels):
         # print(newbox)
         p1 = (int(newbox[0]), int(newbox[1]))
         p2 = (int(newbox[0] + newbox[2]), int(newbox[1] + newbox[3]))
-        cv2.rectangle(image, p1, p2, (255,0,0), 2, 1)
+        cv2.rectangle(image, p1, p2, (0,0,255), 2, 1)
         cv2.putText(image, labels[i], (p1[0], p1[1]-3),cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
         mess+=f'{(p1[0])} {p1[1]} {p2[0]} {p2[1]} {labels[i]} \n'
     txt_name = img_name.replace('.jpg','.txt')
@@ -82,4 +82,4 @@ if __name__ == '__main__':
     video_path = '/media/jonthan/Jonthan/video/20201002123733.MP4'
     image_path = '/media/jonthan/Jonthan/video/20201002123733'
     cut(video_path, image_path)
-    print(time.time() - t_s)
+    # print(time.time() - t_s)

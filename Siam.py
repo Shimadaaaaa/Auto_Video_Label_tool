@@ -2,7 +2,7 @@
 # @Author: hzb
 # @Date:   2020-11-13 16:23:41
 # @Last Modified by:   hzb
-# @Last Modified time: 2020-11-13 20:40:14
+# @Last Modified time: 2020-12-25 20:06:22
 # --------------------------------------------------------
 # DaSiamRPN
 # Licensed under The MIT License
@@ -37,7 +37,10 @@ def SiamRPN_load(image,boxes,txt_path):
         labels.append(bbox[-1])
     return states,labels
     
-def siam_track(image,img_name,txt_path,states,labels):
+def siam_track(image,img_name,txt_path,states,labels,roi):
+    x_min, y_min = roi[0], roi[1]
+    x_max, y_max = roi[2], roi[3]
+    # img_h, img_w = image.shape[0], image.shape[1]
     result_state=[]
     for state in states:
         state_o = SiamRPN_track(state, image)  # track
@@ -45,14 +48,21 @@ def siam_track(image,img_name,txt_path,states,labels):
     txt=os.path.join(txt_path,img_name.replace('.jpg','.txt'))
     file_handle=open(txt,'w')
     mess=''
+    del_list=[]
     for i,state in enumerate(result_state):
             res = cxy_wh_2_rect(state['target_pos'], state['target_sz'])
             res = [int(l) for l in res]
-            cv2.rectangle(image,(res[0],res[1]),(res[0]+res[2],res[1]+res[3]),(255,0,0), 2)
-            cv2.putText(image,labels[i],(res[0],res[1]-5),cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-            mess+=f'{(res[0])} {res[1]} {res[0]+res[2]} {res[1]+res[3]} {labels[i]} \n'
+            if (res[0] + res[2])>x_max or (res[1] + res[3])>y_max or res[0]<x_min or res[1]<y_min:
+                del_list.append(i)
+            else:
+                cv2.rectangle(image,(res[0],res[1]),(res[0]+res[2],res[1]+res[3]),(0,0,255), 2)
+                cv2.putText(image,labels[i],(res[0],res[1]-5),cv2.FONT_HERSHEY_SIMPLEX,1,(0,0,255),2)
+                mess+=f'{(res[0])} {res[1]} {res[0]+res[2]} {res[1]+res[3]} {labels[i]} \n'
     file_handle.write(mess)
-    return result_state,image
+    for i in reversed(del_list):
+        del result_state[i]
+        del labels[i]
+    return result_state,image,labels
 
     
 if __name__ == '__main__':

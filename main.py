@@ -2,17 +2,18 @@
 # @Author: hzb
 # @Date:   2020-11-10 19:45:26
 # @Last Modified by:   hzb
-# @Last Modified time: 2020-11-25 16:46:21
+# @Last Modified time: 2020-12-25 20:05:25
 
 import sys, cv2, time, os
 from PyQt5 import QtGui
-from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog,QTabWidget, QLabel,QWidget
-from PyQt5.QtCore import QTimer, QThread, pyqtSignal, Qt, QRect, QWaitCondition, QMutex, pyqtSignal, pyqtSlot, QCoreApplication
-from PyQt5.QtGui import QPixmap, QImage, QPainter, QPen, QGuiApplication
-from Ui import Ui_MainWindow
-from redraw import redraw, Manual
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from Ui import Ui_MainWindow, Ui_Dialog, Ui_Dialog_manual
+from redraw import redraw, reload
 from kcf import create_KCF, video_track
 from Siam import SiamRPN_load, siam_track
+from client import clientConnect
 import style_rc
 
 
@@ -20,23 +21,40 @@ class mywindow(QMainWindow,Ui_MainWindow):
     def __init__(self):
         super(mywindow,self).__init__()
         self.setupUi(self)
+        self.child_window = Child()
+        self.setting_action.triggered.connect(self.show_child)
+        self.manual_action.triggered.connect(self.show_manual)
         self.open_video.triggered.connect(self.videoprocessing)
         self.open_image.triggered.connect(self.imageprocessing)
-        self.open_label.triggered.connect(self.labelprocessing)
-        self.Manual.triggered.connect(self.show_manual)
+        self.open_client.triggered.connect(self.clientprocessing)
+        
         self.image_flag = False
+        self.del_mode = False
         self.max_img = 0
-        self.labelPath = './'
+
+    def show_child(self):
+        self.child_window.show()
 
     def show_manual(self):
-        #显示使用说明
-        self.label2.setPixmap(QPixmap(""))
-        self.label2.setText(Manual)
+        self.manual_window = Manual()
+        self.manual_window.show()
+        
+    
+    def clientprocessing(self):
+        addr = self.child_window.lineEdit_UDP.text()
+        cam = clientConnect(remoteAddress = (addr, 7999)) 
+        try:
+            cam.connect()      
+            cam.getData(cam.interval)
+        except:
+            return
+
 
     def add_target(self):
         #修改画框事件中的两个flag值
         #框选新目标
         self.lb.draw_all = False
+        self.lb.draw_part = False
         self.lb.draw_cur = True
         
 
@@ -45,9 +63,25 @@ class mywindow(QMainWindow,Ui_MainWindow):
         self.lb.draw_cur = False
         name = self.lineEdit.text()
         self.lb.append_rect(name)
+        if self.lb.pre_rect == 0 or self.del_mode:
+            self.lb.draw_all = True
+        else :
+            self.lb.draw_part = True
+        self.lb.update()
+
+    
+    def get_roi(self):
+        self.lb.draw_cur = False
+        self.roi = self.lb.roi()
         self.lb.draw_all = True
         self.lb.update()
-        print(self.lb, self.lb.rects)
+
+        self.roi[0] = int((self.roi[0])/self.scale)
+        self.roi[1] = int((self.roi[1]-(800 - self.height)/2)/self.scale)
+        self.roi[2] = int((self.roi[2])/self.scale)
+        self.roi[3] = int((self.roi[3]-(800 - self.height)/2)/self.scale)
+
+    
 
     def get_box(self, rects):
         #将qt画的框按比例还原到原图尺寸
@@ -58,17 +92,14 @@ class mywindow(QMainWindow,Ui_MainWindow):
             box.append(int((rect[1]-(800 - self.height)/2)/self.scale) ) 
             box.append(int((rect[2])/self.scale))
             box.append(int((rect[3]-(800 - self.height)/2)/self.scale) )
-            box.append(rect[4])
+            if rect[4]:
+                box.append(rect[4])
+            else:
+                box.append('default')
             res.append(box)
         return res       
 
-    def labelprocessing(self):
-        #打开标签所在路径
-        self.labelPath= QFileDialog.getExistingDirectory(None,
-                                    "打开标签文件夹",
-                                    "")
-        if not self.labelPath: return
-        print(self.labelPath)
+
 
     def videoprocessing(self):
         #打开视频进行切帧，存储在视频路径下视频同名文件夹内
@@ -122,23 +153,32 @@ class mywindow(QMainWindow,Ui_MainWindow):
     
 
     def imageprocessing(self):
+        #将画框事件中的框清空
+        self.lb.rects = []
+        self.lb.delrect = []
         #打开图片文件夹，激活相关功能按键
         _translate = QCoreApplication.translate
-        print('image')
         #清除上次切帧完成的字
         self.label2.setPixmap(QPixmap(""))
         self.imgPath= QFileDialog.getExistingDirectory(None,
                                     "打开图片文件夹",
                                     "")
         if not self.imgPath: return 
-        print(str(self.imgPath))
+        # print(str(self.imgPath))
+        path_name = self.imgPath.split('/')[-1]
+        if self.child_window.lineEdit_label.text() != '':
+            self.labelPath = os.path.join(self.child_window.lineEdit_label.text() , path_name + '_labels')
+            print(self.labelPath)
+        else:
+            self.labelPath = self.imgPath + '_labels'
         #显示第一帧
         self.imgs = os.listdir(self.imgPath)
         self.imgs.sort()
         self.img = cv2.imread(os.path.join(self.imgPath, self.imgs[0]))
+        self.roi = [0, 0, self.img.shape[1], self.img.shape[0]]
         #计算等比例缩放的比例
         self.scale = min(1200 / self.img.shape[1], 800 / self.img.shape[0])
-        self.weight = int(self.scale*self.img.shape[1])
+        self.weight = int(self.scale * self.img.shape[1])
         self.height = int(self.scale * self.img.shape[0])
         self.img = cv2.resize(self.img, (self.weight, self.height))
         self.refreshShow()
@@ -151,8 +191,7 @@ class mywindow(QMainWindow,Ui_MainWindow):
             #如果不是，则是普通图片状态，设定滑条长度为总图片数-1
             self.horizontalScrollBar.setMaximum(len(self.imgs)-1)
             
-        #将画框事件中的框清空
-        self.lb.rects = []
+        
         #设置进度显示
         if self.max_img:
             self.label.setText(str(self.horizontalScrollBar.value()) + '/' + str(self.max_img-1))
@@ -164,6 +203,7 @@ class mywindow(QMainWindow,Ui_MainWindow):
         #添加目标按键和标注按键绑定功能
         self.pushButton_add.clicked.connect(self.add_target)
         self.pushButton_mark.clicked.connect(self.append_target)
+        self.pushButton_roi.clicked.connect(self.get_roi)
         def movebar():
             #随着跟踪进度移动滑条
             self.horizontalScrollBar.setValue(self.th._curIndex-1)
@@ -174,18 +214,19 @@ class mywindow(QMainWindow,Ui_MainWindow):
         def playimage():
             #跟踪开始
             #构建跟踪进程
-            self.th = Thread(self.imgPath, self.checkBox.isChecked())
+            self.th = Thread(self.imgPath, self.comboBox.currentIndex() == 1, self.roi)
             self.th.changePixmap.connect(self.setImage)
             self.th.sinOut.connect(movebar)
             #从滑条获取起始index
             self.th._curIndex = self.horizontalScrollBar.value()
             self.th.start()
-            # print(self.checkBox.isChecked())
             self.boxes = self.get_box(self.lb.rects)
             self.th._curIndex = self.horizontalScrollBar.value()
             self.lb.draw_cur = False
             self.lb.draw_all = False
-            # print(self.boxes)
+            self.lb.draw_part = False
+            self.lb.delrect = []
+            self.del_mode = False
             self.th.play(self.boxes, self.labelPath)
             #开始后将开始键变成暂停键
             self.pushButton_start.setText(_translate("MainWindow", "暂停"))
@@ -200,6 +241,10 @@ class mywindow(QMainWindow,Ui_MainWindow):
             self.th.pause()
             #清空之前的所有框
             self.lb.rects = []
+            txt_name = self.imgs[self.horizontalScrollBar.value()].replace('jpg', 'txt')
+            txt = os.path.join(self.labelPath, txt_name)
+            self.lb.rects = reload(txt, self.scale, self.height)
+            self.lb.pre_rect = len(self.lb.rects)
             self.pushButton_start.setText(_translate("MainWindow", "开始"))
             #去除暂停功能
             self.pushButton_start.disconnect()
@@ -208,6 +253,7 @@ class mywindow(QMainWindow,Ui_MainWindow):
             #暂停时开启拖动滑条速度
             self.horizontalScrollBar.valueChanged.connect(jumpplay)
             self.horizontalScrollBar.sliderMoved.connect(jumpplay)
+            
         def jumpplay():
             #滑动功能
             if self.max_img:
@@ -224,12 +270,47 @@ class mywindow(QMainWindow,Ui_MainWindow):
             self.img = redraw(self.img, txt)
             self.img = cv2.resize(self.img, (self.weight, self.height))
             self.refreshShow()
+            self.lb.rects = []
+            txt_name = self.imgs[self.horizontalScrollBar.value()].replace('jpg', 'txt')
+            txt = os.path.join(self.labelPath, txt_name)
+            self.lb.rects = reload(txt, self.scale, self.height)
+            self.lb.pre_rect = len(self.lb.rects)
+            
         def clearrect():
             #清空功能，重新显示当前帧的原始图片
+            self.lb.rects = []
+            self.lb.delrect = []
+            self.lb.pre_rect = 0
             self.img = cv2.imread(os.path.join(self.imgPath, self.imgs[self.horizontalScrollBar.value()]))
             self.img = cv2.resize(self.img, (self.weight, self.height))
             self.refreshShow()
+
+        def del_check(point, rects):
+            res = []
+            for rect in rects:
+                if point[0] > rect[0] and point[0] < rect[2] and point[1] > rect[1] and point[1] < rect[3]:
+                    continue
+                res.append(rect)
+            return res
+
+        def del_rect():
+            self.del_mode = True
+            self.lb.draw_all = True
+            self.lb.draw_part = False
+            del_point = self.lb.del_rect()
+            self.lb.rects = del_check(del_point, self.lb.rects)
+            self.lb.pre_rect = len(self.lb.rects)
+            self.img = cv2.imread(os.path.join(self.imgPath, self.imgs[self.horizontalScrollBar.value()]))
+            self.img = cv2.resize(self.img, (self.weight, self.height))
+            self.lb.delrect = []
+            self.lb.update()
+            self.refreshShow()
+            
+
+        if not os.path.exists(self.labelPath):
+            os.mkdir(self.labelPath)
         self.pushButton_start.clicked.connect(playimage)
+        self.pushButton_choose.clicked.connect(del_rect)
         self.pushButton_clear.clicked.connect(clearrect)
         self.horizontalScrollBar.sliderMoved.connect(jumpplay)
         self.horizontalScrollBar.valueChanged.connect(jumpplay)
@@ -241,7 +322,7 @@ class Thread(QThread): #采用线程来跟踪、显示
     #进度信号
     sinOut = pyqtSignal(int)
 
-    def __init__(self, imgPath, iskcf):
+    def __init__(self, imgPath, iskcf, roi):
         super().__init__()
         
         self.imgPath = imgPath
@@ -252,6 +333,7 @@ class Thread(QThread): #采用线程来跟踪、显示
         self.cond = QWaitCondition()
         self.mutex = QMutex()
         self.iskcf = iskcf
+        self.roi = roi
     
     def pause(self):
         self._isPause = True
@@ -260,7 +342,6 @@ class Thread(QThread): #采用线程来跟踪、显示
     def play(self, boxes, txt_path):
         self._boxes = boxes
         self.txt_path = txt_path
-        # print(self._boxes)
         self._isPause = False
         if self._isFinish == True:
             self._curIndex = 0
@@ -282,7 +363,6 @@ class Thread(QThread): #采用线程来跟踪、显示
             multiTracker, labels = create_KCF(first_img, self._boxes, self.txt_path)
         else :
             multiTracker, labels = SiamRPN_load(first_img, self._boxes, self.txt_path)
-        # print('new', multiTracker)
         while(True):
             imgs = os.listdir(self.imgPath)
             imgs.sort()
@@ -294,12 +374,12 @@ class Thread(QThread): #采用线程来跟踪、显示
             if self._isPause:self.cond.wait(self.mutex)
             img = imgs[self._curIndex]
             image = cv2.imread(os.path.join(self.imgPath, img))
-            # print(self._boxes)
+            
             #选择跟踪算法
             if self.iskcf:
                 multiTracker, image = video_track(image, img, self.txt_path, multiTracker, labels)
             else :
-                multiTracker, image = siam_track(image, img, self.txt_path, multiTracker, labels)
+                multiTracker, image, labels = siam_track(image, img, self.txt_path, multiTracker, labels, self.roi)
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             convertToQtFormat = QtGui.QImage(image.data, image.shape[1], image.shape[0], QImage.Format_RGB888)
             p = convertToQtFormat.scaled(1200, 800, Qt.KeepAspectRatio)
@@ -335,10 +415,29 @@ class Cut(QThread): #切帧线程
         return  
 
 
+class Child(QDialog, Ui_Dialog):
+    def __init__(self):
+        super(Child,self).__init__()
+        self.setupUi(self)
+        self.pushButton_label.clicked.connect(self.labelprocessing)
+    
+    def labelprocessing(self):
+        #打开标签所在路径
+        self.labelPath= QFileDialog.getExistingDirectory(None,
+                                    "打开标签文件夹",
+                                    "")
+        if not self.labelPath: return
+        self.lineEdit_label.setText(self.labelPath)
+
+class Manual(QDialog, Ui_Dialog_manual):
+    def __init__(self):
+        super(Manual,self).__init__()
+        self.setupUi(self)
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     #加载风格模板
-    with open("darkstyle.qss") as f:
+    with open('darkstyle.qss') as f:
         stylesheet = f.read()
     app.setStyleSheet(stylesheet)
     window = mywindow()

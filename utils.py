@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+# @Author: hzb
+# @Date:   2020-11-30 22:08:20
+# @Last Modified by:   hzb
+# @Last Modified time: 2020-12-01 13:34:10
 # --------------------------------------------------------
 # DaSiamRPN
 # Licensed under The MIT License
@@ -102,10 +107,10 @@ def get_axis_aligned_bbox(region):
     try:
         region = np.array([region[0][0][0], region[0][0][1], region[0][1][0], region[0][1][1],
                            region[0][2][0], region[0][2][1], region[0][3][0], region[0][3][1]])
-        print(region)
+        # print(region)
     except:
         region = np.array(region)
-        print(region)
+        # print(region)
     #print(region)
     #print(region[0::2])
     cx = np.mean(region[0::2])
@@ -122,5 +127,5 @@ def get_axis_aligned_bbox(region):
     s = np.sqrt(A1 / A2)
     w = s * (x2 - x1) + 1
     h = s * (y2 - y1) + 1
-    print(cx, cy,w, h,x1,x2,y1,y2,'-----')
+    # print(cx, cy,w, h,x1,x2,y1,y2,'-----')
     return cx, cy, w, h

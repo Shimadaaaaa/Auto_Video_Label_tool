@@ -1,27 +1,26 @@
-# 视频自动标注软件
+# Auto Video Label Tool
 
-## 使用说明
+![image-20201226155622145](./demo.png)
 
-打开视频：自动切帧
+Realize the automatic annotation function of video images through the object tracking algorithm and manually mark the first frame of the target position.
 
-打开图片：打开切帧后的图片文件夹
+------
 
-打开标签：打开标注文件保存文件夹
+## Function
 
+- Support two tracking algorithms (SiamRPN / KCF)
+- Automatic video frame cutting
+- Set tracking area
+- Specify tracking box delete
+- UDP video transmission
 
+------
 
-添加目标：左侧输入类别名称，鼠标画框
+## Environment
 
-标注：确认添加标记框
-
-KCF/Siam：选择跟踪使用的算法
-
-开始：开始自动标注
-
-暂停：结束标注
-
-清空：清除当前画面原有框
-
-滑条：拖动回看标注结果，并可以从任意位置重新标记后重新标注
-
-![image-20201125165052616](./demo.png)
+python == 3.6
+torch >= 1.2
+PyQt5 >= 5.15 
+QtPy >= 1.9
+opencv-contrib-python >= 3.4.2
+opencv-python >= 3.4.2
