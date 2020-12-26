@@ -23,5 +23,4 @@ torch >= 1.2
 PyQt5 >= 5.15 
 QtPy >= 1.9
 opencv-contrib-python >= 3.4.2
-
 opencv-python >= 3.4.2
