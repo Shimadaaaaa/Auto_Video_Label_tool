@@ -19,8 +19,13 @@ Using tracking algorithm to realize automatic marking of targets in video.
 ## Environment
 
 python == 3.6
+
 torch >= 1.2
-PyQt5 >= 5.15 
+
+PyQt5 >= 5.15
+
 QtPy >= 1.9
+
 opencv-contrib-python >= 3.4.2
+
 opencv-python >= 3.4.2
