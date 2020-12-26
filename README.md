@@ -2,7 +2,7 @@
 
 ![image-20201226155622145](./demo.png)
 
-Realize the automatic annotation function of video images through the object tracking algorithm and manually mark the first frame of the target position.
+Using tracking algorithm to realize automatic marking of targets in video.
 
 ------
 
@@ -23,4 +23,5 @@ torch >= 1.2
 PyQt5 >= 5.15 
 QtPy >= 1.9
 opencv-contrib-python >= 3.4.2
+
 opencv-python >= 3.4.2
